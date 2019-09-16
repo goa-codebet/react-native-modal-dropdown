@@ -1,25 +1,17 @@
-/**
- * Created by sohobloo on 16/9/13.
- */
-
-'use strict';
-
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
 import {
   StyleSheet,
   Dimensions,
   View,
   Text,
-  ListView,
   TouchableWithoutFeedback,
   TouchableNativeFeedback,
   TouchableOpacity,
   TouchableHighlight,
   Modal,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
 
 import PropTypes from 'prop-types';
@@ -28,7 +20,7 @@ const TOUCHABLE_ELEMENTS = [
   'TouchableHighlight',
   'TouchableOpacity',
   'TouchableWithoutFeedback',
-  'TouchableNativeFeedback'
+  'TouchableNativeFeedback',
 ];
 
 export default class ModalDropdown extends Component {
@@ -37,18 +29,38 @@ export default class ModalDropdown extends Component {
     scrollEnabled: PropTypes.bool,
     defaultIndex: PropTypes.number,
     defaultValue: PropTypes.string,
-    options: PropTypes.array,
+    options: PropTypes.array.isRequired,
 
     accessible: PropTypes.bool,
     animated: PropTypes.bool,
     showsVerticalScrollIndicator: PropTypes.bool,
     keyboardShouldPersistTaps: PropTypes.string,
 
-    style: PropTypes.oneOfType([PropTypes.number, PropTypes.object, PropTypes.array]),
-    textStyle: PropTypes.oneOfType([PropTypes.number, PropTypes.object, PropTypes.array]),
-    dropdownStyle: PropTypes.oneOfType([PropTypes.number, PropTypes.object, PropTypes.array]),
-    dropdownTextStyle: PropTypes.oneOfType([PropTypes.number, PropTypes.object, PropTypes.array]),
-    dropdownTextHighlightStyle: PropTypes.oneOfType([PropTypes.number, PropTypes.object, PropTypes.array]),
+    style: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
+    textStyle: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
+    dropdownStyle: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
+    dropdownTextStyle: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
+    dropdownTextHighlightStyle: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.object,
+      PropTypes.array,
+    ]),
 
     adjustFrame: PropTypes.func,
     renderRow: PropTypes.func,
@@ -57,7 +69,7 @@ export default class ModalDropdown extends Component {
 
     onDropdownWillShow: PropTypes.func,
     onDropdownWillHide: PropTypes.func,
-    onSelect: PropTypes.func
+    onSelect: PropTypes.func,
   };
 
   static defaultProps = {
@@ -68,7 +80,7 @@ export default class ModalDropdown extends Component {
     options: null,
     animated: true,
     showsVerticalScrollIndicator: true,
-    keyboardShouldPersistTaps: 'never'
+    keyboardShouldPersistTaps: 'never',
   };
 
   constructor(props) {
@@ -84,13 +96,13 @@ export default class ModalDropdown extends Component {
       loading: !props.options,
       showDropdown: false,
       buttonText: props.defaultValue,
-      selectedIndex: props.defaultIndex
+      selectedIndex: props.defaultIndex,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    let {buttonText, selectedIndex} = this.state;
-    const {defaultIndex, defaultValue, options} = nextProps;
+    let { buttonText, selectedIndex } = this.state;
+    const { defaultIndex, defaultValue, options } = nextProps;
     buttonText = this._nextValue == null ? buttonText : this._nextValue;
     selectedIndex = this._nextIndex == null ? selectedIndex : this._nextIndex;
     if (selectedIndex < 0) {
@@ -105,23 +117,19 @@ export default class ModalDropdown extends Component {
     this.setState({
       loading: !options,
       buttonText,
-      selectedIndex
+      selectedIndex,
     });
-  }
-
-  render() {
-    return (
-      <View {...this.props}>
-        {this._renderButton()}
-        {this._renderModal()}
-      </View>
-    );
   }
 
   _updatePosition(callback) {
     if (this._button && this._button.measure) {
       this._button.measure((fx, fy, width, height, px, py) => {
-        this._buttonFrame = {x: px, y: py, w: width, h: height};
+        this._buttonFrame = {
+          x: px,
+          y: py,
+          w: width,
+          h: height,
+        };
         callback && callback();
       });
     }
@@ -130,19 +138,24 @@ export default class ModalDropdown extends Component {
   show() {
     this._updatePosition(() => {
       this.setState({
-        showDropdown: true
+        showDropdown: true,
       });
     });
   }
 
   hide() {
     this.setState({
-      showDropdown: false
+      showDropdown: false,
     });
   }
 
   select(idx) {
-    const {defaultValue, options, defaultIndex, renderButtonText} = this.props;
+    const {
+      defaultValue,
+      options,
+      defaultIndex,
+      renderButtonText,
+    } = this.props;
 
     let value = defaultValue;
     if (idx == null || !options || idx >= options.length) {
@@ -150,7 +163,9 @@ export default class ModalDropdown extends Component {
     }
 
     if (idx >= 0) {
-      value = renderButtonText ? renderButtonText(options[idx]) : options[idx].toString();
+      value = renderButtonText
+        ? renderButtonText(options[idx])
+        : options[idx].toString();
     }
 
     this._nextValue = value;
@@ -158,60 +173,63 @@ export default class ModalDropdown extends Component {
 
     this.setState({
       buttonText: value,
-      selectedIndex: idx
+      selectedIndex: idx,
     });
   }
 
   _renderButton() {
-    const {disabled, accessible, children, textStyle} = this.props;
-    const {buttonText} = this.state;
+    const { disabled, accessible, children, textStyle } = this.props;
+    const { buttonText } = this.state;
 
     return (
-      <TouchableOpacity ref={button => this._button = button}
-                        disabled={disabled}
-                        accessible={accessible}
-                        onPress={this._onButtonPress}
+      <TouchableOpacity
+        ref={button => (this._button = button)}
+        disabled={disabled}
+        accessible={accessible}
+        onPress={this._onButtonPress}
       >
-        {
-          children ||
-          (
-            <View style={styles.button}>
-              <Text style={[styles.buttonText, textStyle]}
-                    numberOfLines={1}
-              >
-                {buttonText}
-              </Text>
-            </View>
-          )
-        }
+        {children || (
+          <View style={styles.button}>
+            <Text style={[styles.buttonText, textStyle]} numberOfLines={1}>
+              {buttonText}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
     );
   }
 
   _onButtonPress = () => {
-    const {onDropdownWillShow} = this.props;
-    if (!onDropdownWillShow ||
-      onDropdownWillShow() !== false) {
+    const { onDropdownWillShow } = this.props;
+    if (!onDropdownWillShow || onDropdownWillShow() !== false) {
       this.show();
     }
   };
 
   _renderModal() {
-    const {animated, accessible, dropdownStyle} = this.props;
-    const {showDropdown, loading} = this.state;
+    const { animated, accessible, dropdownStyle } = this.props;
+    const { showDropdown, loading } = this.state;
     if (showDropdown && this._buttonFrame) {
       const frameStyle = this._calcPosition();
       const animationType = animated ? 'fade' : 'none';
       return (
-        <Modal animationType={animationType}
-               visible={true}
-               transparent={true}
-               onRequestClose={this._onRequestClose}
-               supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+        <Modal
+          animationType={animationType}
+          visible
+          transparent
+          onRequestClose={this._onRequestClose}
+          supportedOrientations={[
+            'portrait',
+            'portrait-upside-down',
+            'landscape',
+            'landscape-left',
+            'landscape-right',
+          ]}
         >
-          <TouchableWithoutFeedback accessible={accessible}
-                                    disabled={!showDropdown}
-                                    onPress={this._onModalPress}
+          <TouchableWithoutFeedback
+            accessible={accessible}
+            disabled={!showDropdown}
+            onPress={this._onModalPress}
           >
             <View style={styles.modal}>
               <View style={[styles.dropdown, dropdownStyle, frameStyle]}>
@@ -225,30 +243,37 @@ export default class ModalDropdown extends Component {
   }
 
   _calcPosition() {
-    const {dropdownStyle, style, adjustFrame} = this.props;
+    const { dropdownStyle, style, adjustFrame } = this.props;
 
     const dimensions = Dimensions.get('window');
     const windowWidth = dimensions.width;
     const windowHeight = dimensions.height;
 
-    const dropdownHeight = (dropdownStyle && StyleSheet.flatten(dropdownStyle).height) ||
+    const dropdownHeight =
+      (dropdownStyle && StyleSheet.flatten(dropdownStyle).height) ||
       StyleSheet.flatten(styles.dropdown).height;
 
-    const bottomSpace = windowHeight - this._buttonFrame.y - this._buttonFrame.h;
+    const bottomSpace =
+      windowHeight - this._buttonFrame.y - this._buttonFrame.h;
     const rightSpace = windowWidth - this._buttonFrame.x;
-    const showInBottom = bottomSpace >= dropdownHeight || bottomSpace >= this._buttonFrame.y;
+    const showInBottom =
+      bottomSpace >= dropdownHeight || bottomSpace >= this._buttonFrame.y;
     const showInLeft = rightSpace >= this._buttonFrame.x;
 
     const positionStyle = {
       height: dropdownHeight,
-      top: showInBottom ? this._buttonFrame.y + this._buttonFrame.h : Math.max(0, this._buttonFrame.y - dropdownHeight),
+      top: showInBottom
+        ? this._buttonFrame.y + this._buttonFrame.h
+        : Math.max(0, this._buttonFrame.y - dropdownHeight),
     };
 
     if (showInLeft) {
       positionStyle.left = this._buttonFrame.x;
     } else {
-      const dropdownWidth = (dropdownStyle && StyleSheet.flatten(dropdownStyle).width) ||
-        (style && StyleSheet.flatten(style).width) || -1;
+      const dropdownWidth =
+        (dropdownStyle && StyleSheet.flatten(dropdownStyle).width) ||
+        (style && StyleSheet.flatten(style).width) ||
+        -1;
       if (dropdownWidth !== -1) {
         positionStyle.width = dropdownWidth;
       }
@@ -259,90 +284,86 @@ export default class ModalDropdown extends Component {
   }
 
   _onRequestClose = () => {
-    const {onDropdownWillHide} = this.props;
-    if (!onDropdownWillHide ||
-      onDropdownWillHide() !== false) {
+    const { onDropdownWillHide } = this.props;
+    if (!onDropdownWillHide || onDropdownWillHide() !== false) {
       this.hide();
     }
   };
 
   _onModalPress = () => {
-    const {onDropdownWillHide} = this.props;
-    if (!onDropdownWillHide ||
-      onDropdownWillHide() !== false) {
+    const { onDropdownWillHide } = this.props;
+    if (!onDropdownWillHide || onDropdownWillHide() !== false) {
       this.hide();
     }
   };
 
-  _renderLoading() {
-    return (
-      <ActivityIndicator size='small'/>
-    );
-  }
+  _renderLoading = () => {
+    return <ActivityIndicator size="small" />;
+  };
 
   _renderDropdown() {
-    const {scrollEnabled, renderSeparator, showsVerticalScrollIndicator, keyboardShouldPersistTaps} = this.props;
+    const {
+      scrollEnabled,
+      renderSeparator,
+      showsVerticalScrollIndicator,
+      keyboardShouldPersistTaps,
+      options,
+    } = this.props;
+
     return (
-      <ListView scrollEnabled={scrollEnabled}
-                style={styles.list}
-                dataSource={this._dataSource}
-                renderRow={this._renderRow}
-                renderSeparator={renderSeparator || this._renderSeparator}
-                automaticallyAdjustContentInsets={false}
-                showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-                keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+      <FlatList
+        data={options}
+        scrollEnabled={scrollEnabled}
+        style={styles.list}
+        renderItem={this._renderItem}
+        ItemSeparatorComponent={renderSeparator || this._renderSeparator}
+        automaticallyAdjustContentInsets={false}
+        showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps}
       />
     );
   }
 
-  get _dataSource() {
-    const {options} = this.props;
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    });
-    return ds.cloneWithRows(options);
-  }
-
-  _renderRow = (rowData, sectionID, rowID, highlightRow) => {
-    const {renderRow, dropdownTextStyle, dropdownTextHighlightStyle, accessible} = this.props;
-    const {selectedIndex} = this.state;
-    const key = `row_${rowID}`;
-    const highlighted = rowID == selectedIndex;
-    const row = !renderRow ?
-      (<Text style={[
-        styles.rowText,
-        dropdownTextStyle,
-        highlighted && styles.highlightedRowText,
-        highlighted && dropdownTextHighlightStyle
-      ]}
+  _renderItem = ({ item, index, separators }) => {
+    const {
+      renderRow,
+      dropdownTextStyle,
+      dropdownTextHighlightStyle,
+      accessible,
+    } = this.props;
+    const { selectedIndex } = this.state;
+    const key = `row_${index}`;
+    const highlighted = index === selectedIndex;
+    const row = !renderRow ? (
+      <Text
+        style={[
+          styles.rowText,
+          dropdownTextStyle,
+          highlighted && styles.highlightedRowText,
+          highlighted && dropdownTextHighlightStyle,
+        ]}
       >
-        {rowData}
-      </Text>) :
-      renderRow(rowData, rowID, highlighted);
+        {item}
+      </Text>
+    ) : (
+      renderRow(item, index, highlighted)
+    );
     const preservedProps = {
       key,
       accessible,
-      onPress: () => this._onRowPress(rowData, sectionID, rowID, highlightRow),
+      onPress: () => this._onRowPress(item, index, separators),
     };
-    if (TOUCHABLE_ELEMENTS.find(name => name == row.type.displayName)) {
-      const props = {...row.props};
+    if (TOUCHABLE_ELEMENTS.find(name => name === row.type.displayName)) {
+      const props = { ...row.props };
       props.key = preservedProps.key;
       props.onPress = preservedProps.onPress;
-      const {children} = row.props;
+      const { children } = row.props;
       switch (row.type.displayName) {
         case 'TouchableHighlight': {
-          return (
-            <TouchableHighlight {...props}>
-              {children}
-            </TouchableHighlight>
-          );
+          return <TouchableHighlight {...props}>{children}</TouchableHighlight>;
         }
         case 'TouchableOpacity': {
-          return (
-            <TouchableOpacity {...props}>
-              {children}
-            </TouchableOpacity>
-          );
+          return <TouchableOpacity {...props}>{children}</TouchableOpacity>;
         }
         case 'TouchableWithoutFeedback': {
           return (
@@ -362,51 +383,53 @@ export default class ModalDropdown extends Component {
           break;
       }
     }
-    return (
-      <TouchableHighlight {...preservedProps}>
-        {row}
-      </TouchableHighlight>
-    );
+    return <TouchableHighlight {...preservedProps}>{row}</TouchableHighlight>;
   };
 
-  _onRowPress(rowData, sectionID, rowID, highlightRow) {
-    const {onSelect, renderButtonText, onDropdownWillHide} = this.props;
+  _onRowPress(rowData, rowID, highlightRow) {
+    const { onSelect, renderButtonText, onDropdownWillHide } = this.props;
     if (!onSelect || onSelect(rowID, rowData) !== false) {
-      highlightRow(sectionID, rowID);
-      const value = renderButtonText && renderButtonText(rowData) || rowData.toString();
+      highlightRow(rowID);
+      const value =
+        (renderButtonText && renderButtonText(rowData)) || rowData.toString();
       this._nextValue = value;
       this._nextIndex = rowID;
       this.setState({
         buttonText: value,
-        selectedIndex: rowID
+        selectedIndex: rowID,
       });
     }
     if (!onDropdownWillHide || onDropdownWillHide() !== false) {
       this.setState({
-        showDropdown: false
+        showDropdown: false,
       });
     }
   }
 
-  _renderSeparator = (sectionID, rowID, adjacentRowHighlighted) => {
-    const key = `spr_${rowID}`;
-    return (
-      <View style={styles.separator}
-            key={key}
-      />
-    );
+  _renderSeparator = ({ leadingItem = '' }) => {
+    const key = `spr_${leadingItem}`;
+    return <View style={styles.separator} key={key} />;
   };
+
+  render() {
+    return (
+      <View {...this.props}>
+        {this._renderButton()}
+        {this._renderModal()}
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   button: {
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   buttonText: {
-    fontSize: 12
+    fontSize: 12,
   },
   modal: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   dropdown: {
     position: 'absolute',
@@ -415,13 +438,13 @@ const styles = StyleSheet.create({
     borderColor: 'lightgray',
     borderRadius: 2,
     backgroundColor: 'white',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   loading: {
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   list: {
-    //flexGrow: 1,
+    // flexGrow: 1,
   },
   rowText: {
     paddingHorizontal: 6,
@@ -429,13 +452,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: 'gray',
     backgroundColor: 'white',
-    textAlignVertical: 'center'
+    textAlignVertical: 'center',
   },
   highlightedRowText: {
-    color: 'black'
+    color: 'black',
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'lightgray'
-  }
+    backgroundColor: 'lightgray',
+  },
 });
