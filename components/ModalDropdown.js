@@ -315,6 +315,7 @@ export default class ModalDropdown extends Component {
         data={options}
         scrollEnabled={scrollEnabled}
         style={styles.list}
+        keyExtractor={({index}) => (`key-${index}`)}
         renderItem={this._renderItem}
         ItemSeparatorComponent={renderSeparator || this._renderSeparator}
         automaticallyAdjustContentInsets={false}
@@ -389,7 +390,7 @@ export default class ModalDropdown extends Component {
   _onRowPress(rowData, rowID, highlightRow) {
     const { onSelect, renderButtonText, onDropdownWillHide } = this.props;
     if (!onSelect || onSelect(rowID, rowData) !== false) {
-      highlightRow(rowID);
+      highlightRow.highlight(rowID);
       const value =
         (renderButtonText && renderButtonText(rowData)) || rowData.toString();
       this._nextValue = value;
