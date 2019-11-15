@@ -19,6 +19,7 @@
   "homepage": "https://github.com/goa-codebet/react-native-modal-dropdown",
   "license": "MIT",
   "author": "sohobloo <sohobloo@live.cn> (https://github.com/sohobloo)",
+  "private": false,
   "main": "index.js",
   "repository": {
     "type": "git",
