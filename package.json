@@ -1,5 +1,5 @@
 {
-  "name": "react-native-modal-dropdown",
+  "name": "@codebet/react-native-modal-dropdown",
   "version": "0.6.4",
   "description": "A react-native dropdown component for both iOS and Android.",
   "keywords": [
@@ -16,22 +16,21 @@
     "selector",
     "option"
   ],
-  "homepage": "https://github.com/sohobloo/react-native-modal-dropdown",
-  "bugs": {
-    "url": "https://github.com/sohobloo/react-native-modal-dropdown/issues",
-    "email": "sohobloo@live.cn"
-  },
+  "homepage": "https://github.com/goa-codebet/react-native-modal-dropdown",
   "license": "MIT",
   "author": "sohobloo <sohobloo@live.cn> (https://github.com/sohobloo)",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sohobloo/react-native-modal-dropdown.git"
+    "url": "git+https://github.com/goa-codebet/react-native-modal-dropdown.git"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/goa-codebet/react-native-modal-dropdown/issues"
   }
 }
